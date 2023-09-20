@@ -19,3 +19,8 @@ run_updater() {
 run_vitest() {
   printf '%s\n' 'vitest ready'
 }
+
+# current lane: typescript
+run_typescript() {
+  printf '%s\n' 'typescript ready'
+}
