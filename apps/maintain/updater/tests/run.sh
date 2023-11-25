@@ -26,3 +26,5 @@ run_vitest() {
 run_typescript() {
   printf '%s\n' 'typescript ready'
 }
+
+# forced-typescript-6
