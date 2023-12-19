@@ -24,3 +24,8 @@ run_vitest() {
 run_typescript() {
   printf '%s\n' 'typescript ready'
 }
+
+# current lane: panel
+run_panel() {
+  printf '%s\n' 'panel ready'
+}
