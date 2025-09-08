@@ -12,3 +12,4 @@ docker: bootstrap
 github-actions: core-build-out
 add-shared-verification-: expansion
 python: publication
+ruff: publication
