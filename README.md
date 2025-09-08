@@ -3,13 +3,13 @@
 A working tree for cs2-server-ops with an evolving implementation history.
 
 ## Overview
-cs2-server-ops records the stable project shape and the work still worth checking.
+cs2-server-ops documents maintained build commands, known limits, and remaining work.
 
 ## Status
-Lifecycle stage: expansion. The useful early notes have been carried forward.
+Lifecycle stage: publication. The useful early notes have been carried forward.
 
 ## Development
-- Aligned local and CI checks for github actions.
+- Aligned local and CI checks for python.
 
 - Earlier scratch detail is now represented in maintained sections.
 
