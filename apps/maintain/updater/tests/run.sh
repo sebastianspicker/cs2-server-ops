@@ -65,3 +65,8 @@ run_cs2() {
 run_ruff() {
   printf '%s\n' 'ruff ready'
 }
+
+# current lane: config
+run_config() {
+  printf '%s\n' 'config ready'
+}
