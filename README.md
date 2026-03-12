@@ -3,7 +3,7 @@
 A working tree for cs2-server-ops with an evolving implementation history.
 
 ## Overview
-cs2-server-ops keeps setup, verification, and known limitations in one place.
+cs2-server-ops documents maintained build commands, known limits, and remaining work.
 
 ## Status
 Lifecycle stage: maintenance. The useful early notes have been carried forward.
@@ -14,9 +14,9 @@ Lifecycle stage: maintenance. The useful early notes have been carried forward.
 - The document now favors checked behavior over exploratory notes.
 
 ## Usage
-- Made the cs2 assumptions easier to check later.
+- Rewrote the ruff explanation around the maintained behavior.
 
-- The document now favors checked behavior over exploratory notes.
+- The older setup fragments have been reduced to the useful parts.
 
 ## Current Focus
 Use the next review to check behavior before adding surface area.
