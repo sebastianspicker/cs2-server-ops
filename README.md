@@ -3,10 +3,10 @@
 A working tree for cs2-server-ops with an evolving implementation history.
 
 ## Overview
-cs2-server-ops records the stable project shape and the work still worth checking.
+cs2-server-ops keeps setup, verification, and known limitations in one place.
 
 ## Status
-Lifecycle stage: maintenance. Maintenance guidance now reflects the stable shape.
+Lifecycle stage: maintenance. Earlier setup detail now lives in maintained guidance.
 
 ## Development
 - Aligned local and CI checks for config.
@@ -14,9 +14,9 @@ Lifecycle stage: maintenance. Maintenance guidance now reflects the stable shape
 - Earlier scratch detail is now represented in maintained sections.
 
 ## Usage
-- Rewrote the ruff explanation around the maintained behavior.
+- Made the run assumptions easier to check later.
 
-- The older setup fragments have been reduced to the useful parts.
+- Earlier scratch detail is now represented in maintained sections.
 
 ## Current Focus
 Use the next review to check behavior before adding surface area.
