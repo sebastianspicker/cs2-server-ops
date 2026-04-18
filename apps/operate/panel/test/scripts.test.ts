@@ -7,6 +7,7 @@ import { spawn } from 'node:child_process';
 import Database from 'better-sqlite3';
 
 const tempPaths: string[] = [];
+const projectRoot = path.resolve(__dirname, '..', '..');
 
 function rememberTempPath(tempPath: string): string {
   tempPaths.push(tempPath);
@@ -46,11 +47,11 @@ after(() => {
 });
 
 function resolveSeedUsersCommand(): { command: string; args: string[] } {
-  const distScript = path.resolve('dist/scripts/seed-users.js');
+  const distScript = path.join(projectRoot, 'dist/scripts/seed-users.js');
   if (fs.existsSync(distScript)) {
     return { command: process.execPath, args: [distScript] };
   }
-  return { command: 'npx', args: ['tsx', 'scripts/seed-users.ts'] };
+  return { command: 'npx', args: ['tsx', path.join(projectRoot, 'scripts/seed-users.ts')] };
 }
 
 test('`scripts/validate.sh --require-docker` cleans up temporary .env on compose failure', async () => {
@@ -65,13 +66,22 @@ test('`scripts/validate.sh --require-docker` cleans up temporary .env on compose
   fs.mkdirSync(cfgDir, { recursive: true });
   fs.mkdirSync(libDir, { recursive: true });
   fs.mkdirSync(fakeBinDir, { recursive: true });
-  fs.copyFileSync(path.resolve('scripts/validate.sh'), path.join(scriptsDir, 'validate.sh'));
-  fs.copyFileSync(path.resolve('scripts/lib/common.sh'), path.join(libDir, 'common.sh'));
-  fs.copyFileSync(path.resolve('.env.example'), path.join(workspace, '.env.example'));
-  fs.copyFileSync(path.resolve('docker-compose.yaml'), path.join(workspace, 'docker-compose.yaml'));
-  fs.copyFileSync(path.resolve('package.json'), path.join(workspace, 'package.json'));
-  fs.copyFileSync(path.resolve('package-lock.json'), path.join(workspace, 'package-lock.json'));
-  fs.copyFileSync(path.resolve('cfg/maps.json'), path.join(cfgDir, 'maps.json'));
+  fs.copyFileSync(path.join(projectRoot, 'scripts/validate.sh'), path.join(scriptsDir, 'validate.sh'));
+  fs.copyFileSync(path.join(projectRoot, 'scripts/lib/common.sh'), path.join(libDir, 'common.sh'));
+  fs.copyFileSync(path.join(projectRoot, '.env.example'), path.join(workspace, '.env.example'));
+  fs.copyFileSync(path.join(projectRoot, 'docker-compose.yaml'), path.join(workspace, 'docker-compose.yaml'));
+  fs.copyFileSync(path.join(projectRoot, 'package.json'), path.join(workspace, 'package.json'));
+  fs.copyFileSync(path.join(projectRoot, 'package-lock.json'), path.join(workspace, 'package-lock.json'));
+  fs.copyFileSync(path.join(projectRoot, 'cfg/maps.json'), path.join(cfgDir, 'maps.json'));
+
+  // Stub binaries that validate.sh requires before it reaches the Docker section.
+  // They must be present so the script proceeds past the shell-lint and JSON/YAML
+  // checks to the docker-compose cleanup path under test.
+  for (const stub of ['shellcheck', 'shfmt', 'jq', 'ruby']) {
+    fs.writeFileSync(path.join(fakeBinDir, stub), '#!/usr/bin/env bash\nexit 0\n', {
+      mode: 0o755,
+    });
+  }
 
   fs.writeFileSync(
     path.join(fakeBinDir, 'docker'),
@@ -120,13 +130,13 @@ test('`scripts/seed-users.ts` bootstraps the required schema and avoids duplicat
   };
 
   const firstRun = await runCommand(seedUsers.command, seedUsers.args, {
-    cwd: process.cwd(),
+    cwd: projectRoot,
     env,
   });
   assert.equal(firstRun.code, 0, firstRun.output);
 
   const secondRun = await runCommand(seedUsers.command, seedUsers.args, {
-    cwd: process.cwd(),
+    cwd: projectRoot,
     env,
   });
   assert.equal(secondRun.code, 0, secondRun.output);
@@ -218,6 +228,7 @@ test('docs reflect the live auth contract and umbrella module scope', () => {
 
   assert.match(readme, /This module is the `operate` surface of `cs2-server-ops`/);
   assert.match(readme, /Use the root repo’s `apps\/maintain\/updater` for unattended updates/);
+  assert.match(readme, /RCON_SECRET_KEY` \| yes in production \|/);
   assert.doesNotMatch(readme, /Pterodactyl/);
   assert.doesNotMatch(readme, /docs\/source-audit\//);
   assert.doesNotMatch(readme, /round time, overtime, bots, gravity, weapon shortcuts/);
@@ -239,6 +250,7 @@ test('login and add-server templates submit through form handlers', () => {
 
   assert.match(loginTemplate, /<form id="login-form">/);
   assert.match(loginTemplate, /form\.addEventListener\('submit'/);
+  assert.doesNotMatch(loginTemplate, /minlength="12"/);
   assert.doesNotMatch(loginTemplate, /getElementById\('login_btn'\)\.addEventListener\('click'/);
 
   assert.match(addServerTemplate, /<form id="add-server-form">/);
@@ -255,4 +267,11 @@ test('.gitignore keeps validation and regression tests tracked', () => {
 
   assert.doesNotMatch(gitignore, /^scripts\/validate\.sh$/m);
   assert.doesNotMatch(gitignore, /^test\/scripts\.test\.ts$/m);
+});
+
+test('server route keeps add-server limiter Redis-capable', () => {
+  const serverRoute = fs.readFileSync(path.resolve('routes/server.ts'), 'utf8');
+
+  assert.match(serverRoute, /RateLimitRedisStore/);
+  assert.match(serverRoute, /store: addServerLimiterStore/);
 });

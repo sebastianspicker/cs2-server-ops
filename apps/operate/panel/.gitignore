@@ -44,6 +44,8 @@ out/
 tmp/
 tmp-cs2-panel-*
 tmp-cs2-panel-*/
+tmp-entry-cs2-panel-*
+tmp-entry-cs2-panel-*/
 *.tmp
 *.pid
 reports/
