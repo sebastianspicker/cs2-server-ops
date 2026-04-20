@@ -13,9 +13,9 @@
 - `app.ts`: Express entrypoint, security middleware, sessions, routes, health endpoint
 - `db.ts`: SQLite bootstrap and schema setup
 - `modules/`: middleware and RCON integration helpers
-- `routes/`: auth, server CRUD, gameplay actions, status routes
-- `utils/`: validation, maps config, logging, secret handling
-- `views/`: EJS templates
+- `routes/`: auth, server CRUD, gameplay actions, status routes, user management
+- `utils/`: validation, maps config, logging, secret handling, Redis client factory
+- `views/`: EJS templates including login, servers, management, settings, and admin user management
 - `public/`: static assets
 - `cfg/`: gameplay presets and map metadata
 

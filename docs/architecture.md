@@ -6,6 +6,19 @@
 - `maintain`: keep an existing server updated safely
 - `operate`: control and monitor running servers
 
+## Module Relationships
+
+```mermaid
+flowchart LR
+    P["provision\nbootstrap assets\nenv templates\nplugin/admin seeds"]
+    M["maintain\nupdater script\nsystemd timer"]
+    O["operate\npanel\nRCON control plane"]
+
+    P -- "generates admin/plugin files\nconsume env template" --> M
+    P -- "generates admin/plugin files\nconsume env template" --> O
+    M -- "update result\noptional health webhook" --> O
+```
+
 ## Why The Split Exists
 
 Operators think in lifecycle stages, but the implementation still needs clear seams:

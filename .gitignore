@@ -1,5 +1,8 @@
 .DS_Store
 
+# AI planning workspaces
+.kilo/
+
 # Root tooling
 .env
 
@@ -21,3 +24,8 @@ apps/provision/bootstrap/output/
 
 # Generic logs
 *.log
+
+# Internal audit / review tracking docs
+docs/repo-audit-*.md
+docs/source-audit/
+AUDIT.md

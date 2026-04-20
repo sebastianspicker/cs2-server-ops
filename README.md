@@ -16,6 +16,7 @@ only the pieces they need.
 - Keep a server patched: use [docs/workflows/update-server.md](docs/workflows/update-server.md)
 - Operate running servers: use [docs/workflows/operate-server.md](docs/workflows/operate-server.md)
 - Migrate from archived Pterodactyl-style setups: use [docs/workflows/migrate-from-pterodactyl.md](docs/workflows/migrate-from-pterodactyl.md)
+- Recover from data loss or a broken runtime: use [docs/workflows/disaster-recovery.md](docs/workflows/disaster-recovery.md)
 
 ## Shared Contracts
 
