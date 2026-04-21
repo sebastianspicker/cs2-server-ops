@@ -1,39 +1,31 @@
 # Architecture
 
+`cs2-server-ops` is one product with three module boundaries:
 
-## Context
-This page keeps the current architecture guidance concise after earlier rough notes.
+- `provision`: bootstrap a server runtime and supporting assets
+- `maintain`: keep an existing server updated safely
+- `operate`: control and monitor running servers
 
-## Usage
-- Made the run assumptions easier to check later.
+## Why The Split Exists
 
-- Earlier scratch notes were compressed into the current guidance.
+Operators think in lifecycle stages, but the implementation still needs clear seams:
 
-## Notes Folded Into Current Flow
-Early notes are still uneven and may be folded into clearer sections later.
+- bootstrap assets should not drag in a web app
+- the updater should remain usable on a plain host
+- the panel should not become a host orchestration daemon
 
-## Features
-- Turned the first next js sketch into something runnable.
+## Source Anchors
 
-- Earlier scratch notes were compressed into the current guidance.
+- `operate` comes from `02_mid_cs2-modded-server-panel`
+- `maintain` comes from `03_low_cs2-auto-update`
+- `provision` is a curated successor layer derived from the archived egg’s bootstrap ideas, not its shipping runtime model
 
-## Caveats
-Some setup details still depend on the current local workflow and may change again.
+## Explicit Exclusions
 
-## Reliability
-- Closed a concrete panel edge found during expansion work.
+- archived audit workspaces
+- local temp data, DB state, screenshots from ad-hoc verification, and generated bundles
+- Pterodactyl-first runtime packaging as the default deployment path
 
-- Earlier scratch notes were compressed into the current guidance.
+## Publication Intent
 
-## Development
-- Reduced surprise in the the main flow release checks.
-
-- Earlier scratch notes were compressed into the current guidance.
-
-## Architecture
-- Simplified the next maintenance pass through run.
-
-- Earlier scratch notes were compressed into the current guidance.
-
-## Revision Notes
-Latest pass: cs2 during maintenance burst work (forced-cs2-15).
+This repo is intended to publish with `dev` as the authoritative branch.

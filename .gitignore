@@ -1,6 +1,23 @@
-node_modules/
-.venv/
-dist/
-.pytest_cache/
+.DS_Store
 
-# forced-create-the-public-dev-br-1
+# Root tooling
+.env
+
+# Operate module
+apps/operate/panel/node_modules/
+apps/operate/panel/dist/
+apps/operate/panel/data/
+apps/operate/panel/.env
+apps/operate/panel/tmp-cs2-panel-*/
+apps/operate/panel/.playwright-mcp/
+
+# Maintain module
+apps/maintain/updater/.cache/
+apps/maintain/updater/tmp.*
+apps/maintain/updater/tests/tmp.*
+
+# Provision examples
+apps/provision/bootstrap/output/
+
+# Generic logs
+*.log

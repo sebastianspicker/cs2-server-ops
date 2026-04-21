@@ -1,20 +1,31 @@
-name: Main verification
+name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - dev
   pull_request:
-    branches: [main]
+    branches:
+      - dev
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  check_1_verify:
-    name: "verify"
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Verify checkout
-        run: git status --short
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: apps/operate/panel/package-lock.json
+
+      - name: Install shell tooling
+        run: sudo apt-get update && sudo apt-get install -y shellcheck shfmt jq ruby
+
+      - name: Verify repository
+        run: ./scripts/verify.sh
