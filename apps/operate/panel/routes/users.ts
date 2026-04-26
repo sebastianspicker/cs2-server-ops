@@ -6,6 +6,21 @@ import logger from '../utils/logger';
 import isAuthenticated from '../modules/middleware';
 
 const router = express.Router();
+const COMMON_WEAK_PASSWORDS = new Set([
+  'password',
+  'password123',
+  'admin123',
+  'changeme',
+  'change-me',
+  'qwerty123',
+  'letmein123',
+  'welcome123',
+  '123456789012',
+]);
+
+function isDeniedPassword(password: string): boolean {
+  return COMMON_WEAK_PASSWORDS.has(password.trim().toLowerCase());
+}
 
 /** Require the requesting user to have is_admin = 1. */
 function isAdmin(
@@ -51,6 +66,9 @@ router.post('/api/users/change-password', isAuthenticated, async (req, res) => {
   }
 
   const { currentPassword, newPassword } = parseResult.data;
+  if (isDeniedPassword(newPassword)) {
+    return res.status(400).json({ error: 'New password is too common; choose a stronger password' });
+  }
   const userId = req.session.user!.id;
 
   const row = better_sqlite_client
@@ -103,6 +121,9 @@ router.post('/api/users/add', isAuthenticated, isAdmin, async (req, res) => {
   }
 
   const { username, password } = parseResult.data;
+  if (isDeniedPassword(password)) {
+    return res.status(400).json({ error: 'Password is too common; choose a stronger password' });
+  }
   const safeUsername = username.trim();
 
   const existing = better_sqlite_client

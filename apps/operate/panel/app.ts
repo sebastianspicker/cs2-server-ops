@@ -336,7 +336,9 @@ app.get('/api/health', (req, res) => {
   }
   health.ok = health.db && (health.redis === null || health.redis === true);
   const statusCode = health.ok ? 200 : 503;
-  const verboseHealth = process.env.HEALTHCHECK_VERBOSE === 'true' || Boolean(req.session?.user);
+  const verboseHealthEnv = process.env.HEALTHCHECK_VERBOSE === 'true';
+  const isAdmin = req.session?.user?.is_admin === 1;
+  const verboseHealth = verboseHealthEnv ? isAdmin : false;
   if (!verboseHealth) {
     return res.status(statusCode).json({ ok: health.ok });
   }

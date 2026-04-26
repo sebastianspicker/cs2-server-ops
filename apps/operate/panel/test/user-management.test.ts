@@ -195,6 +195,26 @@ test('POST /api/users/change-password returns 400 when new password is too short
   });
 });
 
+test('POST /api/users/change-password returns 400 for common weak password', async () => {
+  await withServer(async (port) => {
+    const { sessionCookie, csrfToken } = await loginAndGetSession(
+      port,
+      'adminuser',
+      'adminpass12345'
+    );
+    const res = await fetch(`http://127.0.0.1:${port}/api/users/change-password`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: sessionCookie,
+        'x-csrf-token': csrfToken,
+      },
+      body: JSON.stringify({ currentPassword: 'adminpass12345', newPassword: 'password123' }),
+    });
+    assert.equal(res.status, 400);
+  });
+});
+
 // ---------------------------------------------------------------------------
 // add user (admin only)
 // ---------------------------------------------------------------------------
@@ -229,6 +249,26 @@ test('POST /api/users/add creates a new user (admin)', async () => {
     assert.equal(res.status, 201);
     const body = (await res.json()) as { message?: string };
     assert.equal(body.message, 'User created');
+  });
+});
+
+test('POST /api/users/add rejects common weak passwords', async () => {
+  await withServer(async (port) => {
+    const { sessionCookie, csrfToken } = await loginAndGetSession(
+      port,
+      'adminuser',
+      'adminpass12345'
+    );
+    const res = await fetch(`http://127.0.0.1:${port}/api/users/add`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        cookie: sessionCookie,
+        'x-csrf-token': csrfToken,
+      },
+      body: JSON.stringify({ username: 'weakuser', password: 'password123' }),
+    });
+    assert.equal(res.status, 400);
   });
 });
 

@@ -28,34 +28,63 @@ have() {
   command -v "$1" >/dev/null 2>&1
 }
 
+VERIFY_STRICT="${VERIFY_STRICT:-true}"
+
 require_cmd npm
 require_cmd make
-require_cmd shellcheck
-require_cmd shfmt
-require_cmd jq
-require_cmd ruby
+
+check_optional_cmd() {
+  local cmd
+  cmd="$1"
+  if have "$cmd"; then
+    return 0
+  fi
+  if [[ "${VERIFY_STRICT}" == "true" ]]; then
+    printf 'Missing required command: %s\n' "$cmd" >&2
+    exit 1
+  fi
+  printf 'WARNING: optional command missing in non-strict mode: %s\n' "$cmd" >&2
+  return 1
+}
+
+have_shellcheck=0
+have_shfmt=0
+have_jq=0
+have_ruby=0
+check_optional_cmd shellcheck && have_shellcheck=1
+check_optional_cmd shfmt && have_shfmt=1
+check_optional_cmd jq && have_jq=1
+check_optional_cmd ruby && have_ruby=1
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf "${tmpdir}"' EXIT
 
 log "shared shell and config checks"
-run shellcheck \
-  "${ROOT}/scripts/verify.sh" \
-  "${ROOT}/scripts/validate.sh" \
-  "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-admins.sh" \
-  "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-plugins.sh" \
-  "${ROOT}/configs/examples/startup/server-start.sh"
-run shfmt -d -i 2 -bn -ci \
-  "${ROOT}/scripts/verify.sh" \
-  "${ROOT}/scripts/validate.sh" \
-  "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-admins.sh" \
-  "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-plugins.sh" \
-  "${ROOT}/configs/examples/startup/server-start.sh"
-run ruby -ryaml -e "YAML.safe_load(File.read('${ROOT}/configs/examples/compose/panel.compose.yaml'), aliases: false, filename: '${ROOT}/configs/examples/compose/panel.compose.yaml')" >/dev/null
-run ruby -ryaml -e "YAML.safe_load(File.read('${ROOT}/configs/examples/compose/server-runtime.compose.yaml'), aliases: false, filename: '${ROOT}/configs/examples/compose/server-runtime.compose.yaml')" >/dev/null
-run jq . "${ROOT}/apps/operate/panel/package.json" >/dev/null
-run jq . "${ROOT}/apps/operate/panel/package-lock.json" >/dev/null
-run jq . "${ROOT}/apps/operate/panel/cfg/maps.json" >/dev/null
+if [[ "${have_shellcheck}" -eq 1 ]]; then
+  run shellcheck \
+    "${ROOT}/scripts/verify.sh" \
+    "${ROOT}/scripts/validate.sh" \
+    "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-admins.sh" \
+    "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-plugins.sh" \
+    "${ROOT}/configs/examples/startup/server-start.sh"
+fi
+if [[ "${have_shfmt}" -eq 1 ]]; then
+  run shfmt -d -i 2 -bn -ci \
+    "${ROOT}/scripts/verify.sh" \
+    "${ROOT}/scripts/validate.sh" \
+    "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-admins.sh" \
+    "${ROOT}/apps/provision/bootstrap/scripts/bootstrap-plugins.sh" \
+    "${ROOT}/configs/examples/startup/server-start.sh"
+fi
+if [[ "${have_ruby}" -eq 1 ]]; then
+  run ruby -ryaml -e "YAML.safe_load(File.read('${ROOT}/configs/examples/compose/panel.compose.yaml'), aliases: false, filename: '${ROOT}/configs/examples/compose/panel.compose.yaml')" >/dev/null
+  run ruby -ryaml -e "YAML.safe_load(File.read('${ROOT}/configs/examples/compose/server-runtime.compose.yaml'), aliases: false, filename: '${ROOT}/configs/examples/compose/server-runtime.compose.yaml')" >/dev/null
+fi
+if [[ "${have_jq}" -eq 1 ]]; then
+  run jq . "${ROOT}/apps/operate/panel/package.json" >/dev/null
+  run jq . "${ROOT}/apps/operate/panel/package-lock.json" >/dev/null
+  run jq . "${ROOT}/apps/operate/panel/cfg/maps.json" >/dev/null
+fi
 
 log "operate module"
 operate_cmd='set -euo pipefail
