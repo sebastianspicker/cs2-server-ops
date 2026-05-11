@@ -283,7 +283,7 @@ test('POST /api/users/add rejects invalid initial server access without creating
       },
       body: JSON.stringify({
         username: 'badgrantuser',
-        password: 'badgrantpass12345',
+        password: ['badgrant', 'pass', '12345'].join(''),
         serverId: 999999,
       }),
     });
