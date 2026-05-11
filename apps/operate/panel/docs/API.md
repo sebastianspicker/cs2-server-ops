@@ -88,29 +88,29 @@ State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-To
 
 ## Practice Controls
 
-| Method | Path                       | Auth | CSRF | Description                               |
-| ------ | -------------------------- | ---- | ---- | ----------------------------------------- |
-| POST   | `/api/noclip`              | Yes  | Yes  | Toggle noclip                             |
-| POST   | `/api/rethrow-grenade`     | Yes  | Yes  | Rethrow last grenade                      |
-| POST   | `/api/random-rounds-toggle`| Yes  | Yes  | Toggle random rounds mode (cfg-based 0/1) |
-| POST   | `/api/rtd-toggle`          | Yes  | Yes  | Toggle Roll the Dice plugin (cfg-based)   |
-| POST   | `/api/rtd-force-roll`      | Yes  | Yes  | Force a dice roll for all players         |
+| Method | Path                        | Auth | CSRF | Description                               |
+| ------ | --------------------------- | ---- | ---- | ----------------------------------------- |
+| POST   | `/api/noclip`               | Yes  | Yes  | Toggle noclip                             |
+| POST   | `/api/rethrow-grenade`      | Yes  | Yes  | Rethrow last grenade                      |
+| POST   | `/api/random-rounds-toggle` | Yes  | Yes  | Toggle random rounds mode (cfg-based 0/1) |
+| POST   | `/api/rtd-toggle`           | Yes  | Yes  | Toggle Roll the Dice plugin (cfg-based)   |
+| POST   | `/api/rtd-force-roll`       | Yes  | Yes  | Force a dice roll for all players         |
 
 ## Map & Workshop
 
-| Method | Path                        | Auth | CSRF | Description                                       |
-| ------ | --------------------------- | ---- | ---- | ------------------------------------------------- |
-| POST   | `/api/workshop-map`         | Yes  | Yes  | Load a Steam Workshop map by ID (5–20 digit id)   |
-| POST   | `/api/workshop-collection`  | Yes  | Yes  | Load a Workshop collection by ID (5–20 digit id)  |
-| POST   | `/api/set-mapgroup`         | Yes  | Yes  | Set active map group by id (from maps.json)       |
+| Method | Path                       | Auth | CSRF | Description                                      |
+| ------ | -------------------------- | ---- | ---- | ------------------------------------------------ |
+| POST   | `/api/workshop-map`        | Yes  | Yes  | Load a Steam Workshop map by ID (5–20 digit id)  |
+| POST   | `/api/workshop-collection` | Yes  | Yes  | Load a Workshop collection by ID (5–20 digit id) |
+| POST   | `/api/set-mapgroup`        | Yes  | Yes  | Set active map group by id (from maps.json)      |
 
 ## Player Management
 
-| Method | Path                  | Auth | CSRF | Body field | Description                               |
-| ------ | --------------------- | ---- | ---- | ---------- | ----------------------------------------- |
-| POST   | `/api/player-kick`    | Yes  | Yes  | `userid`   | Kick player by numeric userid (1–4 digits)|
-| POST   | `/api/player-mute`    | Yes  | Yes  | `steamid`  | Mute player by SteamID64 (17 digits)      |
-| POST   | `/api/player-unmute`  | Yes  | Yes  | `steamid`  | Unmute player by SteamID64                |
+| Method | Path                 | Auth | CSRF | Body field | Description                                |
+| ------ | -------------------- | ---- | ---- | ---------- | ------------------------------------------ |
+| POST   | `/api/player-kick`   | Yes  | Yes  | `userid`   | Kick player by numeric userid (1–4 digits) |
+| POST   | `/api/player-mute`   | Yes  | Yes  | `steamid`  | Mute player by SteamID64 (17 digits)       |
+| POST   | `/api/player-unmute` | Yes  | Yes  | `steamid`  | Unmute player by SteamID64                 |
 
 ## MatchZy
 
@@ -119,8 +119,8 @@ State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-To
 | POST   | `/api/matchzy-match`           | Yes  | Yes  | —                  | Load live.cfg and start MatchZy match           |
 | POST   | `/api/matchzy-practice`        | Yes  | Yes  | —                  | Enable MatchZy practice mode                    |
 | POST   | `/api/matchzy-exitprac`        | Yes  | Yes  | —                  | Exit practice mode, load warmup.cfg             |
-| POST   | `/api/matchzy-playout`         | Yes  | Yes  | —                  | Enable playout (finish remaining rounds)         |
-| POST   | `/api/matchzy-abort`           | Yes  | Yes  | —                  | Abort current match, load warmup.cfg             |
+| POST   | `/api/matchzy-playout`         | Yes  | Yes  | —                  | Enable playout (finish remaining rounds)        |
+| POST   | `/api/matchzy-abort`           | Yes  | Yes  | —                  | Abort current match, load warmup.cfg            |
 | POST   | `/api/matchzy-readyrequired`   | Yes  | Yes  | `value` (0–10)     | Set number of ready players required (0 = none) |
 | POST   | `/api/matchzy-coach`           | Yes  | Yes  | `side` (`ct`\|`t`) | Assign coach slot for the given side            |
 | POST   | `/api/matchzy-load-match-file` | Yes  | Yes  | `filename`         | Load match config from `.json` file on server   |
@@ -149,14 +149,14 @@ State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-To
 
 ## User Management
 
-| Method | Path                          | Auth | Admin | CSRF | Description                                        |
-| ------ | ----------------------------- | ---- | ----- | ---- | -------------------------------------------------- |
-| GET    | `/settings`                   | Yes  | No    | —    | Change-password page                               |
-| GET    | `/admin/users`                | Yes  | Yes   | —    | User management page                               |
-| GET    | `/api/users/list`             | Yes  | Yes   | —    | JSON list of all users (id, username, is_admin)    |
-| POST   | `/api/users/change-password`  | Yes  | No    | Yes  | Change own password (currentPassword, newPassword) |
-| POST   | `/api/users/add`              | Yes  | Yes   | Yes  | Create user (username, password min 12 chars)      |
-| POST   | `/api/users/delete`           | Yes  | Yes   | Yes  | Delete user by id — cannot delete own account      |
+| Method | Path                         | Auth | Admin | CSRF | Description                                         |
+| ------ | ---------------------------- | ---- | ----- | ---- | --------------------------------------------------- |
+| GET    | `/settings`                  | Yes  | No    | —    | Change-password page                                |
+| GET    | `/admin/users`               | Yes  | Yes   | —    | User management page                                |
+| GET    | `/api/users/list`            | Yes  | Yes   | —    | JSON list of all users (id, username, is_admin)     |
+| POST   | `/api/users/change-password` | Yes  | No    | Yes  | Change own password (currentPassword, newPassword)  |
+| POST   | `/api/users/add`             | Yes  | Yes   | Yes  | Create user (username, password, optional serverId) |
+| POST   | `/api/users/delete`          | Yes  | Yes   | Yes  | Delete user by id — cannot delete own account       |
 
 ## Common Response Formats
 
