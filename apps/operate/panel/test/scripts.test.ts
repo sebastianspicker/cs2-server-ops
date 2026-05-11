@@ -7,6 +7,18 @@ import { spawn } from 'node:child_process';
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 
+async function rmRecursiveWithRetry(target: string): Promise<void> {
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true });
+      return;
+    } catch (err) {
+      if (attempt === 5) throw err;
+      await new Promise((resolve) => setTimeout(resolve, attempt * 100));
+    }
+  }
+}
+
 test('`scripts/validate.sh --require-docker` cleans up temporary .env on compose failure', async () => {
   const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cs2-panel-validate-fixture-'));
   try {
@@ -67,14 +79,15 @@ exit 99
     );
 
     const result = await new Promise<{ code: number | null; output: string }>((resolve, reject) => {
-      const child = spawn('bash', ['scripts/validate.sh', '--require-docker'], {
-        cwd: workspace,
-        env: {
-          ...process.env,
-          PATH: `${fakeBinDir}:${process.env.PATH ?? ''}`,
-        },
-        stdio: ['ignore', 'pipe', 'pipe'],
-      });
+      const child = spawn(
+        'bash',
+        ['-lc', 'PATH="$PWD/fake-bin:$PATH" scripts/validate.sh --require-docker'],
+        {
+          cwd: workspace,
+          env: process.env,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        }
+      );
       let output = '';
       child.stdout!.on('data', (chunk: Buffer) => {
         output += chunk.toString();
@@ -90,7 +103,7 @@ exit 99
     assert.match(result.output, /docker compose -f .* config -q/);
     assert.equal(fs.existsSync(path.join(workspace, '.env')), false);
   } finally {
-    fs.rmSync(workspace, { recursive: true, force: true });
+    await rmRecursiveWithRetry(workspace);
   }
 });
 
@@ -101,9 +114,9 @@ test('docs reflect the live auth contract and umbrella module scope', () => {
 
   assert.match(
     apiDoc,
-    /State-changing requests \(POST\/PUT\/DELETE\) require a CSRF token.*except `POST \/auth\/login`\./
+    /State-changing requests \(POST\/PUT\/DELETE\) require a CSRF token in the `X-CSRF-Token` header\./
   );
-  assert.match(apiDoc, /\| POST\s+\| `\/auth\/login`\s+\| No\s+\| No\s+\| 20\/15min\s+\|/);
+  assert.match(apiDoc, /\| POST\s+\| `\/auth\/login`\s+\| No\s+\| Yes\s+\| 20\/15min\s+\|/);
   assert.match(
     apiDoc,
     /\*\*Auth routes:\*\*\s*use the same `\{ "message": "\.\.\." \}` success shape/

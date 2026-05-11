@@ -272,12 +272,14 @@ test('`tsx app.ts` fails fast in production with short SESSION_SECRET', async ()
 });
 
 test('`tsx app.ts` fails fast in production when explicit DB_PATH is invalid', async () => {
+  const invalidDbParent = path.join(tmpDir, 'not-a-directory');
+  fs.writeFileSync(invalidDbParent, 'not a directory');
   const child = spawn(cmd, cmdArgs, {
     env: {
       ...process.env,
       NODE_ENV: 'production',
       PORT: '0',
-      DB_PATH: '/dev/null/cspanel.db',
+      DB_PATH: path.join(invalidDbParent, 'cspanel.db'),
       SESSION_SECRET: 'prod-session-secret-strong-value',
       RCON_SECRET_KEY: Buffer.alloc(32, 1).toString('base64'),
       REDIS_URL: 'redis://127.0.0.1:6380',

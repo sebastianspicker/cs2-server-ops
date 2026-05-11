@@ -105,10 +105,7 @@ test('GET / returns login page (not authenticated)', async () => {
   }
 });
 
-// The /auth/login endpoint is deliberately CSRF-exempt because a valid CSRF token
-// cannot exist before a session is established. Valid credentials succeed even
-// without a session cookie or CSRF token.
-test('POST /auth/login is CSRF-exempt and succeeds with valid credentials', async () => {
+test('POST /auth/login rejects missing CSRF token', async () => {
   const server: Server = app.listen(0);
   try {
     const { port } = server.address() as AddressInfo;
@@ -118,9 +115,9 @@ test('POST /auth/login is CSRF-exempt and succeeds with valid credentials', asyn
       body: JSON.stringify({ username: 'testuser', password: ['test', 'pass', '12345'].join('') }),
     });
 
-    assert.equal(res.status, 200);
+    assert.equal(res.status, 403);
     const body = (await res.json()) as Record<string, unknown>;
-    assert.equal(body.message, 'Login successful');
+    assert.equal(body.error, 'Invalid CSRF token');
   } finally {
     await new Promise<void>((resolve) => server.close(() => resolve()));
   }

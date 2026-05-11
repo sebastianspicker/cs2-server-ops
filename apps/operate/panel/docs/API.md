@@ -1,12 +1,12 @@
 # API Reference
 
 All endpoints except `/api/health` require authentication via session cookie.
-State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-Token` header, except `POST /auth/login`.
+State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-Token` header.
 
 ## Authentication Flow
 
 1. `GET /` — renders login page, sets session cookie and CSRF token
-2. `POST /auth/login` — authenticate with username/password (CSRF-exempt)
+2. `POST /auth/login` — authenticate with username/password and the login page CSRF token
 3. Use session cookie + CSRF token for all subsequent requests
 4. `POST /auth/logout` — destroy session
 
@@ -14,7 +14,7 @@ State-changing requests (POST/PUT/DELETE) require a CSRF token in the `X-CSRF-To
 
 | Method | Path           | Auth | CSRF | Rate Limit |
 | ------ | -------------- | ---- | ---- | ---------- |
-| POST   | `/auth/login`  | No   | No   | 20/15min   |
+| POST   | `/auth/login`  | No   | Yes  | 20/15min   |
 | POST   | `/auth/logout` | Yes  | Yes  | —          |
 
 ## Server Management

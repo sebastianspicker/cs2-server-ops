@@ -15,6 +15,18 @@ let adminUserId: number;
 const credentialField = ['pass', 'word'].join('');
 const fixtureCredential = (label: string): string => [label, 'pa' + 'ss', '12345'].join('');
 
+async function rmRecursiveWithRetry(target: string): Promise<void> {
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    try {
+      fs.rmSync(target, { recursive: true, force: true });
+      return;
+    } catch (err) {
+      if (attempt === 5) throw err;
+      await new Promise((resolve) => setTimeout(resolve, attempt * 100));
+    }
+  }
+}
+
 before(async () => {
   tmpDir = fs.mkdtempSync(path.join(process.cwd(), 'tmp-cs2-usermgmt-'));
   const dbPath = path.join(tmpDir, 'cspanel.db');
@@ -45,8 +57,14 @@ before(async () => {
   adminUserId = row.id;
 });
 
-after(() => {
-  fs.rmSync(tmpDir, { recursive: true, force: true });
+after(async () => {
+  const { better_sqlite_client } = await import('../db');
+  try {
+    better_sqlite_client.close();
+  } catch {
+    // ignore cleanup errors
+  }
+  await rmRecursiveWithRetry(tmpDir);
 });
 
 async function withServer(app: Express, fn: (port: number) => Promise<void>): Promise<void> {
