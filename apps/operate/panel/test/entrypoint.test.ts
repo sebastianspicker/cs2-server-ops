@@ -79,8 +79,7 @@ test('`tsx app.ts` starts and logs listening port', async () => {
 
     const onOutput = () => {
       const clean = stdout.replace(ANSI_RE, '');
-      // Match legacy format: "Server is running on PORT."
-      // or pino-pretty format (may include ANSI codes): "Server is running\n    port: PORT"
+      // Match legacy or JSON startup logs.
       const m =
         clean.match(/Server is running on (\d+)\./) ||
         (clean.includes('Server is running') ? clean.match(/port[^\d]*(\d+)/) : null);
