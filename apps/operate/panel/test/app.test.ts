@@ -5,6 +5,11 @@ import assert from 'node:assert/strict';
 import type { AddressInfo } from 'net';
 import type { Server } from 'http';
 import type { Express } from 'express';
+import {
+  getLoginPageCsrfAndCookie,
+  getPageCsrfToken,
+  loginAndGetSession as loginWithCredentials,
+} from './http-helpers';
 
 let tmpDir: string;
 let dbPath: string;
@@ -13,50 +18,10 @@ let sharedSessionCookie: string | null = null;
 let rconCommands: string[] = [];
 let failingRconCommands = new Set<string>();
 
-async function getPageCsrfToken(
-  port: number,
-  cookie?: string | null,
-  pagePath = '/servers'
-): Promise<string | null> {
-  const res = await fetch(`http://127.0.0.1:${port}${pagePath}`, {
-    headers: cookie ? { cookie } : {},
-  });
-  const text = await res.text();
-  const m = text.match(/name="csrf-token"\s+content="([^"]+)"/);
-  return m?.[1] || null;
-}
-
-async function getLoginPageCsrfAndCookie(
-  port: number
-): Promise<{ cookie: string; csrfToken: string }> {
-  const res = await fetch(`http://127.0.0.1:${port}/`);
-  const setCookie = res.headers.get('set-cookie');
-  assert.ok(setCookie, 'Login page should set a cookie');
-  const cookie = setCookie.split(';')[0]!;
-  const text = await res.text();
-  const m = text.match(/name="csrf-token"\s+content="([^"]+)"/);
-  assert.ok(m, 'CSRF token not found in login page');
-  return { cookie, csrfToken: m[1]! };
-}
-
 async function loginAndGetSession(
   port: number
 ): Promise<{ sessionCookie: string; csrfToken: string }> {
-  const { cookie, csrfToken: initialCsrfToken } = await getLoginPageCsrfAndCookie(port);
-  const loginRes = await fetch(`http://127.0.0.1:${port}/auth/login`, {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      cookie,
-      'x-csrf-token': initialCsrfToken,
-    },
-    body: JSON.stringify({ username: 'testuser', password: 'testpass12345' }),
-  });
-  assert.equal(loginRes.status, 200);
-  const sessionCookie = loginRes.headers.get('set-cookie')?.split(';')[0] ?? '';
-  const csrfToken = await getPageCsrfToken(port, sessionCookie);
-  assert.ok(csrfToken, 'CSRF token should exist after login');
-  return { sessionCookie, csrfToken };
+  return loginWithCredentials(port, 'testuser', 'testpass12345');
 }
 
 async function loginOrReuseSession(
@@ -644,7 +609,10 @@ test('POST /api/setup-game does not change map when execCfg fails', async () => 
 
     assert.equal(res.status, 500);
     assert.equal(rconCommands.includes('exec wingman.cfg'), true);
-    assert.equal(rconCommands.some((command) => command.startsWith('changelevel ')), false);
+    assert.equal(
+      rconCommands.some((command) => command.startsWith('changelevel ')),
+      false
+    );
   } finally {
     failingRconCommands = new Set();
     rconCommands = [];
