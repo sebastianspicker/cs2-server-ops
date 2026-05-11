@@ -3,9 +3,9 @@ import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
 
 const e2ePort = Number(process.env.E2E_PORT || 3210);
-const e2eStateDir = path.resolve('.e2e');
+const e2eRunId = process.env.E2E_RUN_ID || `${Date.now()}-${process.pid}`;
+const e2eStateDir = path.resolve('.e2e', e2eRunId);
 
-fs.rmSync(e2eStateDir, { recursive: true, force: true });
 fs.mkdirSync(e2eStateDir, { recursive: true });
 
 export default defineConfig({
